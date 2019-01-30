@@ -1,4 +1,5 @@
 var express = require('express');
+var exphbs = require('express-handlebars');
 var app = express();
 var port = 5000;
 var path = require('path');
@@ -19,6 +20,9 @@ mongoose.connect("mongodb://localhost:27017/gameentries", {
 require('./models/Entry');
 var Entry = mongoose.model('Entries');
 
+app.engine('handlebars', exphbs({defaultLayout : 'main'}));
+app.set('view engine', 'handlebars');
+
 //functions needed to run body-parser
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -26,7 +30,12 @@ app.use(bodyParser.json());
 
 //Route to index.html
 router.get('/', function(req,res) {
-    res.sendFile(path.join(__dirname+'/index.html'));
+    //res.sendFile(path.join(__dirname+'/index.html'));
+    var title = "Welcome to the GameApp Page";
+
+    res.render('index', {
+        title:title
+    });
 });
 
 app.get('/getdata', function(req,res) {
@@ -59,9 +68,6 @@ app.post('/', function(req, res){
 //routes for paths
 app.use(express.static(__dirname+'/views'));
 app.use(express.static(__dirname+'/scripts'));
-
-
-
 app.use('/', router);
 //starts server
 app.listen(port, function() {

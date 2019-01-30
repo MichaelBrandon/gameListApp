@@ -4,13 +4,16 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Game List App Page</title>
+    <link href="main.css" rel="stylesheet" type="text/css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <h1>Here is the List</h1>
-    <div id="entries-list">
+    <div id="wrapper">
+        <h1>Here is the List</h1>
+        <div id="entries-list">
 
 
+        </div>
     </div>
     <script>
         fetch('/getdata')
@@ -20,7 +23,7 @@
         .then(function(entries) {
             console.log(JSON.stringify(entries));
             entries.entries.forEach(function(entry) {
-                document.getElementById("entries-list").innerHTML += "<div><p>Game: " + entry.title+"</p><p>Genre: " +entry.genre+"</p><p>Date: "+entry.date+"</p></div><br>";
+                document.getElementById("entries-list").innerHTML += "<div class='entries'><p>Game: " + entry.title+"</p><p>Genre: " +entry.genre+"</p><p>Date: "+entry.date+"</p></div><br>";
             })
                 
         });
