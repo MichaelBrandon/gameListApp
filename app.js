@@ -69,7 +69,20 @@ app.post('/addgame', function(req, res){
         title:req.body.title,
         genre:req.body.genre
     }
-    new Entry(newEntry).save().then(function(entry){res.redirect('/')});
+    new Entry(newEntry)
+    .save()
+    .then(function(entry){
+        res.redirect('/')
+    });
+});
+
+
+//Delete Game Entry
+app.post('/:id', function(req, res) {
+    Entry.remove({_id:req.params.id}).then(function() {
+        //req.flash("game removed");
+        res.redirect('/');
+    });
 });
 
 
