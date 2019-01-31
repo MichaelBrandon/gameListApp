@@ -31,20 +31,29 @@ app.use(bodyParser.json());
 //Route to index.html
 router.get('/', function(req,res) {
     //res.sendFile(path.join(__dirname+'/index.html'));
-    var title = "Welcome to the GameApp Page";
+    //var title = "Welcome to the GameApp Page";
 
-    res.render('index', {
-        title:title
-    });
+    res.render('index');
 });
 
-app.get('/getdata', function(req,res) {
+//Route to entries.html
+router.get('/entries', function(req,res) {
+    res.render('gameentries/addgame');
+});
+
+//Route to entries.html
+router.get('/login', function(req,res) {
+    res.render('login');
+});
+
+app.get('/', function(req,res) {
     console.log("request made from fetch");
-    Entry.find({}).then(function(entries){
-        res.send({
+    Entry.find({})
+    .then(function(entries){
+        res.render('index', {
             entries:entries
         })
-    })
+    });
 });
 
 /*
@@ -54,7 +63,7 @@ router.get('/entries', function(req,res) {
 */
 
 //post from form on index.html
-app.post('/', function(req, res){
+app.post('/addgame', function(req, res){
     console.log(req.body);
     var newEntry = {
         title:req.body.title,
