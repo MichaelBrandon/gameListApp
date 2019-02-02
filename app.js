@@ -36,6 +36,8 @@ router.get('/', function(req,res) {
     res.render('index');
 });
 
+
+
 //Route to entries.html
 router.get('/entries', function(req,res) {
     res.render('gameentries/addgame');
