@@ -1,0 +1,14 @@
+Z:\>c:
+C:\>cd program files
+C:\Program Files>cd mongodb
+C:\Program Files\MongoDB>cd server
+C:\Program Files\MongoDB\Server>cd 4.0
+C:\Program Files\MongoDB\Server\4.0>bin
+
+ show dbs
+ use gameentries
+ show collections
+ show users
+ db.users
+ db.users.find().pretty()
+
