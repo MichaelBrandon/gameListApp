@@ -5,6 +5,8 @@ C:\Program Files\MongoDB>cd server
 C:\Program Files\MongoDB\Server>cd 4.0
 C:\Program Files\MongoDB\Server\4.0>bin
 
+mongo
+
  show dbs
  use gameentries
  show collections
