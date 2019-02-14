@@ -2,7 +2,7 @@ var express = require('express');
 var exphbs = require('express-handlebars');
 var app = express();
 var methodOverride = require('method-override');
-var port = 5000;
+var port = process.env.PORT || 5000;
 var path = require('path'); 
 var session = require('express-session');
 var passport = require('passport');
@@ -15,6 +15,8 @@ var {ensureAuthenticated} = require('./helpers/auth');
 //Configurs routes
 var users = require('./routes/users');
 
+var db = require('./config/database');
+
 //Passportjs Config orute
 require('./config/passport')(passport);
 
@@ -23,7 +25,7 @@ require('./config/passport')(passport);
 mongoose.Promise = global.Promise;
 
 //connect to mongodb using mongoose
-mongoose.connect("mongodb://localhost:27017/gameentries", {
+mongoose.connect(db.mongoURI, {
     useMongoClient:true
 }).then(function(){console.log("MongoDB connected")})
 .catch(function(err){console.log(err)});
