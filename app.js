@@ -2,7 +2,7 @@ var express = require('express');
 var exphbs = require('express-handlebars');
 var app = express();
 var methodOverride = require('method-override');
-//var port = process.env.PORT || 3000;
+var port = process.env.PORT || 3000;
 var path = require('path'); 
 var session = require('express-session');
 var passport = require('passport');
@@ -10,7 +10,7 @@ var flash = require('connect-flash');
 var router = express.Router();
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var io = require('socket.io')(process.env.PORT || 3000);
+var io = require('socket.io')(process.env.PORT || 5000);
 var shortid = require('shortid');
 var {ensureAuthenticated} = require('./helpers/auth');
 
@@ -33,8 +33,10 @@ mongoose.connect(db.mongoURI, {
 .catch(function(err){console.log(err)});
 
 //Load in Entry Model
+/*
 require('./models/Entry');
 var Entry = mongoose.model('Entries');
+*/
 require('./models/Users');
 var Users = mongoose.model('Users');
 
@@ -217,68 +219,68 @@ var playerCount = 0;
 
 console.log("SERVER LOG: Server Running");
 
-io.on('connection', function(socket){
+io.on('connection', function (socket) {
     console.log("SERVER LOG: Connected to Unity");
     socket.emit('connected');
     var thisPlayerId = shortid.generate();
 
     var player = {
-        id:thisPlayerId,
-        position:{
-            v:0
+        id: thisPlayerId,
+        position: {
+            v: 0
         }
     }
 
     players[thisPlayerId] = player;
 
-    socket.broadcast.emit('spawn', {id:thisPlayerId});
-    socket.emit('registered', {id:thisPlayerId});
+    socket.broadcast.emit('spawn', { id: thisPlayerId });
+    socket.emit('registered', { id: thisPlayerId });
     console.log("players array length: ", players.length);
 
-    for(var playerId in players){
-        if(playerId == thisPlayerId)
-        continue;
+    for (var playerId in players) {
+        if (playerId == thisPlayerId)
+            continue;
         socket.emit('spawn', players[playerId]);
-        console.log("SERVER LOG: Sending spawn to new with ID ",thisPlayerId);
+        console.log("SERVER LOG: Sending spawn to new with ID ", thisPlayerId);
     }
 
-    socket.on('senddata', function(data){
+    socket.on('senddata', function (data) {
         console.log(JSON.stringify(data));
-    var newUser = {
-        name:data.name,
-    }
-    new Users(newUser)
-    .save()
-    .then(function(users){
-        console.log("sending data to database");
-        Users.find({})
-        .then(function(users){
-            console.log(users);
-            socket.emit('hideform', {users});
-        });
+        var newUser = {
+            name: data.name,
+        }
+        new Users(newUser)
+            .save()
+            .then(function (users) {
+                console.log("sending data to database");
+                Users.find({})
+                    .then(function (users) {
+                        console.log(users);
+                        socket.emit('hideform', { users });
+                    });
 
-        
+
+            });
     });
-});
 
-    socket.on('sayhello', function(data){
+    socket.on('sayhello', function (data) {
         console.log("SERVER LOG: Unity Game says hello");
         socket.emit('talkback');
     });
 
-    socket.on('disconnect', function(){
-        console.log("SERVER LOG: Player ", {id:thisPlayerId}, " disconnected");
+    socket.on('disconnect', function () {
+        console.log("SERVER LOG: Player ", { id: thisPlayerId }, " disconnected");
         delete players[thisPlayerId];
-        socket.broadcast.emit('disconnected', {id:thisPlayerId})
+        socket.broadcast.emit('disconnected', { id: thisPlayerId })
     });
 
-    socket.on('move', function(data){
+    socket.on('move', function (data) {
         //console.log("UNITY -> SERVER: Player moved", JSON.stringify(data));
         data.id = thisPlayerId;
         socket.broadcast.emit("move", data);
     });
 
-    socket.on('updatePosition', function(data) {
+    socket.on('updatePosition', function (data) {
         data.id = thisPlayerId;
         socket.broadcast.emit('updatePosition', data);
     });
@@ -286,6 +288,6 @@ io.on('connection', function(socket){
 
 //starts server
 
-app.listen(io.PORT, function() {
+app.listen(port, function() {
     console.log("Server is running on Port ");
 });
