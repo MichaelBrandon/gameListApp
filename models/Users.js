@@ -8,11 +8,11 @@ var UserSchema = new Schema({
     },
     email:{
         type:String,
-        required:true
+        required:false
     },
     password:{
         type:String,
-        required:true
+        required:false
     },
     date:{
         type:Date,

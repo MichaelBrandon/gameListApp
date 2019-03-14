@@ -2,7 +2,7 @@ var express = require('express');
 var exphbs = require('express-handlebars');
 var app = express();
 var methodOverride = require('method-override');
-var port = process.env.PORT || 5000;
+//var port = process.env.PORT || 3000;
 var path = require('path'); 
 var session = require('express-session');
 var passport = require('passport');
@@ -10,6 +10,8 @@ var flash = require('connect-flash');
 var router = express.Router();
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var io = require('socket.io')(process.env.PORT || 3000);
+var shortid = require('shortid');
 var {ensureAuthenticated} = require('./helpers/auth');
 
 //Configurs routes
@@ -207,7 +209,83 @@ app.use(express.static(__dirname+'/scripts'));
 app.use('/', router);
 app.use('/users', users);
 
+
+// -------- Unity Connection Stuff ----------- //
+
+var players = [];
+var playerCount = 0;
+
+console.log("SERVER LOG: Server Running");
+
+io.on('connection', function(socket){
+    console.log("SERVER LOG: Connected to Unity");
+    socket.emit('connected');
+    var thisPlayerId = shortid.generate();
+
+    var player = {
+        id:thisPlayerId,
+        position:{
+            v:0
+        }
+    }
+
+    players[thisPlayerId] = player;
+
+    socket.broadcast.emit('spawn', {id:thisPlayerId});
+    socket.emit('registered', {id:thisPlayerId});
+    console.log("players array length: ", players.length);
+
+    for(var playerId in players){
+        if(playerId == thisPlayerId)
+        continue;
+        socket.emit('spawn', players[playerId]);
+        console.log("SERVER LOG: Sending spawn to new with ID ",thisPlayerId);
+    }
+
+    socket.on('senddata', function(data){
+        console.log(JSON.stringify(data));
+    var newUser = {
+        name:data.name,
+    }
+    new Users(newUser)
+    .save()
+    .then(function(users){
+        console.log("sending data to database");
+        Users.find({})
+        .then(function(users){
+            console.log(users);
+            socket.emit('hideform', {users});
+        });
+
+        
+    });
+});
+
+    socket.on('sayhello', function(data){
+        console.log("SERVER LOG: Unity Game says hello");
+        socket.emit('talkback');
+    });
+
+    socket.on('disconnect', function(){
+        console.log("SERVER LOG: Player ", {id:thisPlayerId}, " disconnected");
+        delete players[thisPlayerId];
+        socket.broadcast.emit('disconnected', {id:thisPlayerId})
+    });
+
+    socket.on('move', function(data){
+        //console.log("UNITY -> SERVER: Player moved", JSON.stringify(data));
+        data.id = thisPlayerId;
+        socket.broadcast.emit("move", data);
+    });
+
+    socket.on('updatePosition', function(data) {
+        data.id = thisPlayerId;
+        socket.broadcast.emit('updatePosition', data);
+    });
+});
+
 //starts server
-app.listen(port, function() {
-    console.log("Server is running on Port " + port);
+
+app.listen(io.PORT, function() {
+    console.log("Server is running on Port ");
 });
