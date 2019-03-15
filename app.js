@@ -154,7 +154,7 @@ router.get('/logout', function(req,res){
 //gamers route
 app.get('/gamers', /*ensureAuthenticated,*/ function(req,res) {
     console.log("request made from fetch");
-    Entry.find({users:req.user.id})
+    Entry.find({users:req.user})
     .then(function(entries){
         res.render('index', {
             entries:entries
