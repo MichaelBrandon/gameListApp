@@ -2,17 +2,25 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var EntrySchema = new Schema({
-    title:{
+    name:{
         type:String,
         required:true
+    },
+    points: {
+        type:String,
+        required:true
+    },
+    title:{
+        type:String,
+        required:false
     },
     genre:{
         type:String,
-        required:true
+        required:false
     },
     user:{
         type:String,
-        required:true
+        required:false
     },
     date:{
         type:Date,

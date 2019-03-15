@@ -33,10 +33,10 @@ mongoose.connect(db.mongoURI, {
 .catch(function(err){console.log(err)});
 
 //Load in Entry Model
-/*
+
 require('./models/Entry');
 var Entry = mongoose.model('Entries');
-*/
+
 require('./models/Users');
 var Users = mongoose.model('Users');
 
@@ -87,14 +87,14 @@ app.use(methodOverride('_method'));
 
 
 //Route to entries.html
-router.get('/entries', ensureAuthenticated, function(req,res) {
+router.get('/entries', /*ensureAuthenticated,*/ function(req,res) {
     res.render('gameentries/addgame', {user:req.user});
     
 });
 
 //Route to Edit Game Entries
 router.get('/gameentries/edit/:id', function(req,res) {
-    Entry.findOne({
+    Users.findOne({
         _id:req.params.id
     }).then(function(entry){
         res.render('gameentries/editgame', {
@@ -152,9 +152,9 @@ router.get('/logout', function(req,res){
 })
 
 //gamers route
-app.get('/gamers', ensureAuthenticated, function(req,res) {
+app.get('/gamers', /*ensureAuthenticated,*/ function(req,res) {
     console.log("request made from fetch");
-    Entry.find({user:req.user.id})
+    Entry.find({users:req.user.id})
     .then(function(entries){
         res.render('index', {
             entries:entries
@@ -226,10 +226,13 @@ io.on('connection', function (socket) {
 
     var player = {
         id: thisPlayerId,
+        points: points,
         position: {
             v: 0
         }
     }
+
+    
 
     players[thisPlayerId] = player;
 
@@ -248,6 +251,7 @@ io.on('connection', function (socket) {
         console.log(JSON.stringify(data));
         var newUser = {
             name: data.name,
+            points: data.points,
         }
         new Users(newUser)
             .save()
@@ -269,7 +273,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('disconnect', function () {
-        console.log("SERVER LOG: Player ", { id: thisPlayerId }, " disconnected");
+        console.log("SERVER LOG: Player ", { id: thisPlayerId }, " disconnected", {});
         delete players[thisPlayerId];
         socket.broadcast.emit('disconnected', { id: thisPlayerId })
     });
